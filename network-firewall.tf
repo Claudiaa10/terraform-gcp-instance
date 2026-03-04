@@ -1,22 +1,38 @@
-# allow http traffic
-resource "google_compute_firewall" "allow-http" {
-  name    = "tf-fw-allow-http"
-  network = var.gcp-network
-  allow {
-    protocol = "tcp"
-    ports    = ["80"]
-  }
-  target_tags   = ["http"]
-  source_ranges = ["0.0.0.0/0"]
+resource "google_compute_network" "vpc_network" {
+name = var.gcp-network
+auto_create_subnetworks = true
 }
-# allow ssh traffic
-resource "google_compute_firewall" "allow-ssh" {
-  name    = "tf-fw-allow-ssh"
-  network = var.gcp-network
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-  target_tags   = ["http"]
-  source_ranges = ["0.0.0.0/0"]
+resource "google_compute_firewall" "firewall-icmp" {
+name = "terraform-allow-icmp"
+network = google_compute_network.vpc_network.name
+allow {
+protocol = "icmp"
 }
+source_ranges = ["0.0.0.0/0"]
+}
+resource "google_compute_firewall" "firewall-ssh" {
+name = "terraform-allow-ssh"
+network = google_compute_network.vpc_network.name
+allow {
+protocol = "tcp"
+ports = ["22"]
+}
+source_ranges = ["0.0.0.0/0"]
+}
+resource "google_compute_firewall" "firewall-internal" {
+name = "terraform-allow-internal"
+network = google_compute_network.vpc_network.name
+allow {
+protocol = "tcp"
+ports = ["0-65535"]
+}
+allow {
+protocol = "udp"
+ports = ["0-65535"]
+}
+allow {
+protocol = "icmp"
+}
+source_ranges = ["10.128.0.0/20"]
+}
+

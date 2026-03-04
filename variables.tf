@@ -1,14 +1,14 @@
 variable "gcp-username" {
   description = "GCP user name"
-  default     = "icai2025"
+  default     = "service-account"
 }
 
 variable "gcp-project" {
   description = "GCP project"
-  default     = "icai2025"
+  default     = "lab-6-489108"
 }
 
 variable "gcp-network" {
   description = "GCP network"
-  default     = "default"
+  default     = "terraform-network"
 }
