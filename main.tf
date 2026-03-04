@@ -5,13 +5,17 @@ resource "google_compute_instance" "tf_vm" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-11"
+      image = "ubuntu-os-cloud/ubuntu-2204-lts"
     }
   }
 
   metadata = {
     ssh-keys = "${var.gcp-username}:${file(pathexpand("../.ssh/id_rsa.pub"))}"
   }
+
+  tags = ["http"]
+
+  metadata_startup_script = file("setup-docker.sh")
 
   network_interface {
     network = var.gcp-network
@@ -20,9 +24,11 @@ resource "google_compute_instance" "tf_vm" {
 }
 
 output "tf_vm_internal_ip" {
-  value = google_compute_instance.tf_vm.network_interface[0].network_ip
+  value      = google_compute_instance.tf_vm.network_interface[0].network_ip
+  depends_on = [google_compute_instance.tf_vm]
 }
 
 output "tf_vm_ephemeral_ip" {
-  value = google_compute_instance.tf_vm.network_interface[0].access_config[0].nat_ip
+  value      = google_compute_instance.tf_vm.network_interface[0].access_config[0].nat_ip
+  depends_on = [google_compute_instance.tf_vm]
 }
